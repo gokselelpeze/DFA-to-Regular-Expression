@@ -1,0 +1,6 @@
+Remove any dead states if exists.
+Create a new initial state qinitial and connect it to the old initial state.
+Create a new final state qfinal and connect all existing final states to it.
+Select one of the states except qinitial and qfinal and eliminate it.
+Example: There is a path going from state A to state B via state C. Eliminate the state C and put a direct path from state A to state B then calculate its cost.
+Repeat step 4 until only qinitial and qfinal remain.
