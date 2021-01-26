@@ -2,6 +2,7 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
+    // Finite state machine
     static Map<String, State> fsm = new HashMap<>();
     static String start;
     static List<String> accept;
@@ -12,18 +13,16 @@ public class Main {
 
         File file = new File(filePath);
         BufferedReader br = new BufferedReader(new FileReader(file));
+        // Get variables
         start = br.readLine().split("=")[1];
         accept = new ArrayList<>(Arrays.asList(br.readLine().split("=")[1].split(",")));
         br.readLine();  //.split("=")[1].split(",");
         allStates = new ArrayList<>(Arrays.asList(br.readLine().split("=")[1].split(",")));
 
-
+        // Save states to map
         for (String str : allStates) {
             fsm.put(str, new State(str, accept.contains(str), str.equals(start)));
         }
-
-        ArrayList<ArrayList<String>> transitions = new ArrayList<>();
-
 
         String st;
         while ((st = br.readLine()) != null) {
@@ -39,35 +38,31 @@ public class Main {
                 fsm.get(to).addInTransition(from, value);
             }
         }
-        System.out.println("--------" + fsm.size() + "-state DFA---------");
+        System.out.println("\n------------------" + fsm.size() + "-state DFA---------------------");
         showFSM();
+        System.out.println("--------------------------------------------------");
+        System.out.println("Adding new start state (qinit)");
+        System.out.println("Adding new final state (qfin)");
+
         // Add accept state qfin
         addNewAccept();
         // Add start state qinit
         addNewStart();
 
+        // Repeat until qinit and qfin remains
         while (fsm.size() > 2) {
-            System.out.println("\n--------" + fsm.size() + "-state GNFA--------");
+            System.out.println("-------------------" + fsm.size() + "-state GNFA-------------------");
+            // print each step
             showFSM();
+            // remove q rip
             eliminateState();
         }
-        System.out.println("\n--------REGULAR EXPRESSION--------");
+        System.out.println("----------------REGULAR EXPRESSION----------------");
         showFSM();
+        System.out.println("--------------------------------------------------");
+
     }
-
-    public static String reformatResult(String expression) {
-
-        for (int i = 0; i < expression.length(); i++) {
-            if ((i > 0 && expression.charAt(i - 1) == '€') || (i < expression.length() - 1 && expression.charAt(i + 1) == '€')) {
-
-            }
-        }
-
-
-        return expression;
-    }
-
-
+    // Add new start state and replace previous start
     public static void addNewStart() {
         State newStart = new State("qinit", false, true);
         newStart.addOutTransition(fsm.get(start).label, "€");
@@ -77,7 +72,7 @@ public class Main {
         start = newStart.label;
         allStates.add(0, newStart.label);
     }
-
+    // Add new accept state and replace previous accepts
     public static void addNewAccept() {
         State newAccept = new State("qfin", true, false);
         for (State state : fsm.values()) {
@@ -93,6 +88,7 @@ public class Main {
         allStates.add(newAccept.label);
     }
 
+    // Print steps
     public static void showFSM() {
         System.out.println("Start -> " + start);
         System.out.print("Accept -> ");
@@ -111,23 +107,27 @@ public class Main {
             }
         }
     }
-
+    // Remove q rip
     public static void eliminateState() {
+        // Remove dead states
         removeDeadState();
-        String lastState = pickState();
-        State state = fsm.get(lastState);
+        // Pick the least amount of transitions
+        String removeState = pickState();
+        // State = qrip
+        State state = fsm.get(removeState);
+        // removeIn, removeOut are transitions to remove after loop finished
+        // removeState
         ArrayList<String> removeIn = new ArrayList<>();
         ArrayList<String> removeOut = new ArrayList<>();
-        String removeState = "";
-        // silecegimiz state -> state.label
-
+        System.out.println("--------------------------------------------------");
         System.out.println("Removing " + state.label + "...");
-        System.out.println("------------------------------");
+        // For all incoming states
         for (State.transition transIn : state.inTransitions.values()) {
+            // For all outgoing states
             for (State.transition transOut : state.outTransitions.values()) {
+                // If incoming from and outgoing to are same (self loop)
                 if (transIn.from.equals(transOut.to)) {
-                    // gelen okun geldigi statei bul, gelen ok + [self loop varsa] + oraya giden oku
-                    // , o statein self loopuna ekle
+                    // If state have self loop
                     if (fsm.get(state.label).selfLoop == null) {
                         fsm.get(transIn.from).addSelfLoop("(" + transIn.value + transOut.value + ")");
                     } else {
@@ -135,8 +135,9 @@ public class Main {
                         transOut.value = transOut.value.equals("€") ? "": transOut.value;
                         fsm.get(transIn.from).addSelfLoop("(" + transIn.value + state.selfLoop.value + "*" + transOut.value + ")");
                     }
-                    // transIn.from = q1 tranOut.to = q3   q1 -> q2 -> q3
+                    // Ex:  q1 -> q2 -> q3   transIn.from = q1 tranOut.to = q3
                 } else {
+                    // If state have self loop
                     if (fsm.get(state.label).selfLoop == null) {
                         fsm.get(transIn.from).addOutTransition(transOut.to, "(" + transIn.value + transOut.value + ")");
                         fsm.get(transOut.to).addInTransition(transIn.from, "(" + transIn.value + transOut.value + ")");
@@ -148,15 +149,10 @@ public class Main {
                     }
                 }
                 removeOut.add(transOut.to);
-                //fsm.get(transOut.to).removeInTransition(state.label);
             }
-
             removeIn.add(transIn.from);
-            //fsm.get(transIn.from).removeOutTransition(state.label);
         }
-
-        removeState = state.label;
-
+        // Remove all transitions
         allStates.remove(removeState);
         fsm.remove(removeState);
         for (String str : removeOut) {
@@ -166,10 +162,10 @@ public class Main {
             fsm.get(str).removeOutTransition(removeState);
         }
     }
-
+    // Sort the states by amount of transitions they have and return the minimum
     public static String pickState() {
         PriorityQueue<Map.Entry<String, Integer>> queue = new PriorityQueue<>((a, b) -> b.getValue() - a.getValue());
-        int sum = 0;
+        int sum;
         for (State state : fsm.values()) {
             sum = 0;
             if (!state.isAccept && !state.isStart) {
@@ -180,16 +176,13 @@ public class Main {
                 queue.offer(new AbstractMap.SimpleEntry<>(state.label, sum));
             }
         }
-        String lastState = null;
-        System.out.println("/////");
+        String minimumState = null;
         for (Map.Entry<String, Integer> value : queue) {
-            System.out.println("State: " + value.getKey() + "\tValue" + value.getValue());
-            lastState = value.getKey();
+            minimumState = value.getKey();
         }
-        System.out.println("/////");
-        return lastState;
+        return minimumState;
     }
-
+    // Remove states without outgoing transitions
     public static void removeDeadState() {
         boolean removed = true;
         while (removed) {
@@ -202,8 +195,9 @@ public class Main {
                         removed = true;
                     }
                     label = state.label;
+                    System.out.println("-------------------------------------------");
                     System.out.println("Dead State " + label + " is deleted.");
-                    System.out.println("------------------------------");
+                    System.out.println("-------------------------------------------");
                 }
             }
             fsm.remove(label);
