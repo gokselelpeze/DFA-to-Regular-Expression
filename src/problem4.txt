@@ -1,0 +1,12 @@
+S=A
+A=A,B,C
+E=a,b
+Q=A,B,C,D
+A,b=A
+A,a=B
+B,a=B
+B,b=C
+C,b=C
+C,a=D
+D,a=D
+D,b=D

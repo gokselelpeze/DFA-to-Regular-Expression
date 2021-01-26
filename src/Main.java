@@ -6,12 +6,11 @@ public class Main {
     static String start;
     static List<String> accept;
     static List<String> allStates;
-    static final String filePath = "src/problem2.txt";
+    static final String filePath = "src/problem4.txt";
 
     public static void main(String[] args) throws IOException {
 
         File file = new File(filePath);
-
         BufferedReader br = new BufferedReader(new FileReader(file));
         start = br.readLine().split("=")[1];
         accept = new ArrayList<>(Arrays.asList(br.readLine().split("=")[1].split(",")));
@@ -46,23 +45,22 @@ public class Main {
         addNewAccept();
         // Add start state qinit
         addNewStart();
-        System.out.println("--------" + fsm.size() + "-state GNFA--------");
-        showFSM();
-        removeDeadState();
-        System.out.println("--------" + fsm.size() + "-state GNFA--------");
-        showFSM();
+
         while (fsm.size() > 2) {
-            eliminateState();
+            System.out.println("\n--------" + fsm.size() + "-state GNFA--------");
             showFSM();
+            eliminateState();
         }
+        System.out.println("\n--------REGULAR EXPRESSION--------");
+        showFSM();
     }
 
     public static void addNewStart() {
         State newStart = new State("qinit", false, true);
-        newStart.addOutTransition(fsm.get(start).label, "");
+        newStart.addOutTransition(fsm.get(start).label, "€");
         fsm.put(newStart.label, newStart);
         fsm.get(start).isStart = false;
-        fsm.get(start).addInTransition(newStart.label, "");
+        fsm.get(start).addInTransition(newStart.label, "€");
         start = newStart.label;
         allStates.add(0, newStart.label);
     }
@@ -71,8 +69,8 @@ public class Main {
         State newAccept = new State("qfin", true, false);
         for (State state : fsm.values()) {
             if (accept.contains(state.label)) {
-                newAccept.addInTransition(state.label, "");
-                state.addOutTransition(newAccept.label, "");
+                newAccept.addInTransition(state.label, "€");
+                state.addOutTransition(newAccept.label, "€");
                 state.isAccept = false;
                 accept.remove(state.label);
             }
@@ -99,7 +97,6 @@ public class Main {
                 System.out.println("  " + tran.from + "\t---" + tran.value + "--->\t" + tran.to);
             }
         }
-        System.out.println("----------------------------");
     }
 
     public static void eliminateState() {
@@ -111,6 +108,7 @@ public class Main {
         for (State state : fsm.values()) {
             if (!state.isAccept && !state.isStart) {
                 System.out.println("Removing " + state.label + "...");
+                System.out.println("------------------------------");
                 for (State.transition transIn : state.inTransitions.values()) {
                     for (State.transition transOut : state.outTransitions.values()) {
                         if (transIn.from.equals(transOut.to)) {
@@ -166,9 +164,11 @@ public class Main {
                     }
                     label = state.label;
                     System.out.println("Dead State " + label + " is deleted.");
+                    System.out.println("------------------------------");
                 }
             }
             fsm.remove(label);
+            allStates.remove(label);
         }
     }
 }
