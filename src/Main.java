@@ -6,7 +6,7 @@ public class Main {
     static String start;
     static List<String> accept;
     static List<String> allStates;
-    static final String filePath = "src/problem1.txt";
+    static final String filePath = "src/problem2.txt";
 
     public static void main(String[] args) throws IOException {
 
@@ -51,7 +51,7 @@ public class Main {
         removeDeadState();
         System.out.println("--------" + fsm.size() + "-state GNFA--------");
         showFSM();
-        while (fsm.size() > 2){
+        while (fsm.size() > 2) {
             eliminateState();
             showFSM();
         }
@@ -59,10 +59,10 @@ public class Main {
 
     public static void addNewStart() {
         State newStart = new State("qinit", false, true);
-        newStart.addOutTransition(fsm.get(start).label, "€");
+        newStart.addOutTransition(fsm.get(start).label, "");
         fsm.put(newStart.label, newStart);
         fsm.get(start).isStart = false;
-        fsm.get(start).addInTransition(newStart.label, "€");
+        fsm.get(start).addInTransition(newStart.label, "");
         start = newStart.label;
         allStates.add(0, newStart.label);
     }
@@ -71,8 +71,8 @@ public class Main {
         State newAccept = new State("qfin", true, false);
         for (State state : fsm.values()) {
             if (accept.contains(state.label)) {
-                newAccept.addInTransition(state.label, "€");
-                state.addOutTransition(newAccept.label, "€");
+                newAccept.addInTransition(state.label, "");
+                state.addOutTransition(newAccept.label, "");
                 state.isAccept = false;
                 accept.remove(state.label);
             }
@@ -117,18 +117,18 @@ public class Main {
                             // gelen okun geldigi statei bul, gelen ok + [self loop varsa] + oraya giden oku
                             // , o statein self loopuna ekle
                             if (fsm.get(state.label).selfLoop == null) {
-                                fsm.get(transIn.from).addSelfLoop(transIn.value + transOut.value);
+                                fsm.get(transIn.from).addSelfLoop("(" + transIn.value + transOut.value + ")");
                             } else {
-                                fsm.get(transIn.from).addSelfLoop(transIn.value + state.selfLoop.value + "*" + transOut.value);
+                                fsm.get(transIn.from).addSelfLoop("(" + transIn.value + state.selfLoop.value + "*" + transOut.value + ")");
                             }
                             // transIn.from = q1 tranOut.to = q3   q1 -> q2 -> q3
                         } else {
                             if (fsm.get(state.label).selfLoop == null) {
-                                fsm.get(transIn.from).addOutTransition(transOut.to, transIn.value + transOut.value);
-                                fsm.get(transOut.to).addInTransition(transIn.from, transIn.value + transOut.value);
+                                fsm.get(transIn.from).addOutTransition(transOut.to, "(" + transIn.value + transOut.value + ")");
+                                fsm.get(transOut.to).addInTransition(transIn.from, "(" + transIn.value + transOut.value + ")");
                             } else {
-                                fsm.get(transIn.from).addOutTransition(transOut.to, transIn.value + state.selfLoop.value + "*" + transOut.value);
-                                fsm.get(transOut.to).addInTransition(transIn.from, transIn.value + state.selfLoop.value + "*" + transOut.value);
+                                fsm.get(transIn.from).addOutTransition(transOut.to, "(" + transIn.value + state.selfLoop.value + "*" + transOut.value + ")");
+                                fsm.get(transOut.to).addInTransition(transIn.from, "(" + transIn.value + state.selfLoop.value + "*" + transOut.value + ")");
                             }
                         }
                         removeOut.add(transOut.to);
@@ -145,10 +145,10 @@ public class Main {
         }
         allStates.remove(removeState);
         fsm.remove(removeState);
-        for (String str: removeOut) {
+        for (String str : removeOut) {
             fsm.get(str).removeInTransition(removeState);
         }
-        for (String str: removeIn) {
+        for (String str : removeIn) {
             fsm.get(str).removeOutTransition(removeState);
         }
     }
