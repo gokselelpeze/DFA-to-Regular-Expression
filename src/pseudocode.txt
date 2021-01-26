@@ -5,3 +5,8 @@ Select one of the states except qinitial and qfinal and eliminate it.
 Example: There is a path going from state A to state B via state C. Eliminate the state C and put a direct path from state A to state B then calculate its cost.
 
 Repeat step 4 until only qinitial and qfinal remain.
+
+            // Eger from ve to ayniysa from un self loop una ekle
+            // Degilse
+            // from outgoing ine ekle
+            // to nun incoming ine ekle
