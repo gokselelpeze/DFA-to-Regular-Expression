@@ -1,0 +1,9 @@
+S=A
+A=A
+E=a,b
+Q=A,B,C
+A,a=B
+B,b=A
+A,b=C
+C,a=A
+C,b=B
