@@ -7,7 +7,7 @@ public class Main {
     static String start;
     static List<String> accept;
     static List<String> allStates;
-    static final String filePath = "files/problem5.txt";
+    static final String filePath = "files/problem3.txt";
 
     public static void main(String[] args) throws IOException {
 
@@ -133,19 +133,19 @@ public class Main {
                     } else {
                         transIn.value = transIn.value.equals("€") ? "": transIn.value;
                         transOut.value = transOut.value.equals("€") ? "": transOut.value;
-                        fsm.get(transIn.from).addSelfLoop("(" + transIn.value + state.selfLoop.value + "*" + transOut.value + ")");
+                        fsm.get(transIn.from).addSelfLoop(transIn.value + state.selfLoop.value + "*" + transOut.value);
                     }
                     // Ex:  q1 -> q2 -> q3   transIn.from = q1 tranOut.to = q3
                 } else {
                     // If state have self loop
                     if (fsm.get(state.label).selfLoop == null) {
-                        fsm.get(transIn.from).addOutTransition(transOut.to, "(" + transIn.value + transOut.value + ")");
-                        fsm.get(transOut.to).addInTransition(transIn.from, "(" + transIn.value + transOut.value + ")");
+                        fsm.get(transIn.from).addOutTransition(transOut.to, transIn.value + transOut.value);
+                        fsm.get(transOut.to).addInTransition(transIn.from, transIn.value + transOut.value);
                     } else {
                         transIn.value = transIn.value.equals("€") ? "": transIn.value;
                         transOut.value = transOut.value.equals("€") ? "": transOut.value;
-                        fsm.get(transIn.from).addOutTransition(transOut.to, "(" + transIn.value + state.selfLoop.value + "*" + transOut.value + ")");
-                        fsm.get(transOut.to).addInTransition(transIn.from, "(" + transIn.value + state.selfLoop.value + "*" + transOut.value + ")");
+                        fsm.get(transIn.from).addOutTransition(transOut.to, transIn.value + state.selfLoop.value + "*" + transOut.value);
+                        fsm.get(transOut.to).addInTransition(transIn.from, transIn.value + state.selfLoop.value + "*" + transOut.value);
                     }
                 }
                 removeOut.add(transOut.to);
