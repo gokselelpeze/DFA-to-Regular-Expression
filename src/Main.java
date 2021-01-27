@@ -12,10 +12,10 @@ public class Main {
 
         File file = new File(filePath);
         BufferedReader br = new BufferedReader(new FileReader(file));
-        // Get variables
+        // Read variables
         start = br.readLine().split("=")[1];
         accept = new ArrayList<>(Arrays.asList(br.readLine().split("=")[1].split(",")));
-        br.readLine();  //.split("=")[1].split(",");
+        br.readLine(); // Alphabet is not used so skip that line
         allStates = new ArrayList<>(Arrays.asList(br.readLine().split("=")[1].split(",")));
 
         // Save states to map
@@ -23,8 +23,9 @@ public class Main {
             fsm.put(str, new State(str, accept.contains(str), str.equals(start)));
         }
 
+        // Read and save transitions
         String st;
-        while ((st = br.readLine()) != null) {
+        while ((st = br.readLine()) != null && !st.equals("")) {
             String[] temp = st.split(",");
             String[] temp2 = temp[1].split("=");
             String from = temp[0];
@@ -56,8 +57,10 @@ public class Main {
             // remove q rip
             eliminateState();
         }
-        System.out.println("----------------REGULAR EXPRESSION----------------");
+        System.out.println("-------------------2-state GNFA-------------------");
         showFSM();
+        System.out.println("--------------------------------------------------");
+        System.out.println("Regular Expression: " + fsm.get("qinit").outTransitions.get("qfin").value);
         System.out.println("--------------------------------------------------");
 
     }
@@ -202,6 +205,4 @@ public class Main {
             allStates.remove(label);
         }
     }
-
-
 }
