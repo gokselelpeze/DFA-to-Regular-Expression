@@ -49,7 +49,7 @@ public class State {
         if (!outTransitions.containsKey(to)) {
             this.outTransitions.put(to, new transition(label, to, value));
         } else {
-            this.outTransitions.get(to).value  = "(" + this.outTransitions.get(to).value + "+" + value + ")";
+            this.outTransitions.get(to).value  = "(" + value + "+" + this.outTransitions.get(to).value + ")";
         }
     }
     public void removeInTransition(String dest){

@@ -8,10 +8,10 @@ Eliminate states until there are 2 states left:
         foreach incoming transitions as in
                 foreach outgoing transitions as out
                     if in -> source and out -> destination are same (self loop)
-                        [in -> self loop] += [in value x [self loop* if exists] x out value]
+                        [in -> selfLoop] += [in -> value x [selfLoop* if exists] x out -> value]
                     else
-                        [in.outTransition] += [in value x [self loop* if exists] x out value]
-                        [out.inTransition] += [in value x [self loop* if exists] x out value]
+                        [in.outTransition] += [in -> value x [selfLoop* if exists] x out -> value]
+                        [out.inTransition] += [in -> value x [selfLoop* if exists] x out -> value]
     Remove all transitions of removed state
     Print the result
 

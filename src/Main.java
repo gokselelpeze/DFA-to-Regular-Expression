@@ -7,8 +7,7 @@ public class Main {
     static String start;
     static List<String> accept;
     static List<String> allStates;
-    static final String filePath = "files/test.txt";
-    //static Queue<String> removeOrder = new LinkedList<>(Arrays.asList("1", "2", "3", "4"));
+    static final String filePath = "files/problem5.txt";
     public static void main(String[] args) throws IOException {
 
         File file = new File(filePath);
@@ -112,12 +111,10 @@ public class Main {
         // Remove dead states
         removeDeadState();
         // Pick the least amount of transitions
-        //String removeState = removeOrder.poll();
         String removeState = pickState();
         // State = qrip
         State state = fsm.get(removeState);
         // removeIn, removeOut are transitions to remove after loop finished
-        // removeState
         ArrayList<String> removeIn = new ArrayList<>();
         ArrayList<String> removeOut = new ArrayList<>();
         System.out.println("--------------------------------------------------");
@@ -126,27 +123,27 @@ public class Main {
         for (State.transition transIn : state.inTransitions.values()) {
             // For all outgoing states
             for (State.transition transOut : state.outTransitions.values()) {
-                // If incoming from and outgoing to are same (self loop)
                 transIn.value = transIn.value.equals("€") ? "": transIn.value;
                 transOut.value = transOut.value.equals("€") ? "": transOut.value;
+                // If incoming from and outgoing to are same (self loop)
                 if (transIn.from.equals(transOut.to)) {
-                    // If state have self loop
+                    // If state does not have self loop
                     if (fsm.get(state.label).selfLoop == null) {
-                        fsm.get(transIn.from).addSelfLoop("(" + transIn.value + transOut.value + ")");
+                        fsm.get(transIn.from).addSelfLoop(transIn.value + transOut.value);
                     } else {
-                        fsm.get(transIn.from).addSelfLoop(transIn.value + state.selfLoop.value + "*" + transOut.value);
+                        String selfLoopValue = state.selfLoop.value.length() == 1 ? state.selfLoop.value : "(" + state.selfLoop.value + ")";
+                        fsm.get(transIn.from).addSelfLoop(transIn.value + selfLoopValue + "*" + transOut.value);
                     }
                     // Ex:  q1 -> q2 -> q3   transIn.from = q1 tranOut.to = q3
                 } else {
-                    // If state have self loop
+                    // If state does not have self loop
                     if (fsm.get(state.label).selfLoop == null) {
                         fsm.get(transIn.from).addOutTransition(transOut.to, transIn.value + transOut.value);
                         fsm.get(transOut.to).addInTransition(transIn.from, transIn.value + transOut.value);
                     } else {
-                        //transIn.value = transIn.value.equals("€") ? "": transIn.value;
-                        //transOut.value = transOut.value.equals("€") ? "": transOut.value;
-                        fsm.get(transIn.from).addOutTransition(transOut.to, transIn.value + state.selfLoop.value + "*" + transOut.value);
-                        fsm.get(transOut.to).addInTransition(transIn.from, transIn.value + state.selfLoop.value + "*" + transOut.value);
+                        String selfLoopValue = state.selfLoop.value.length() == 1 ? state.selfLoop.value : "(" + state.selfLoop.value + ")";
+                        fsm.get(transIn.from).addOutTransition(transOut.to, transIn.value + selfLoopValue + "*" + transOut.value);
+                        fsm.get(transOut.to).addInTransition(transIn.from, transIn.value + selfLoopValue + "*" + transOut.value);
                     }
                 }
                 removeOut.add(transOut.to);
